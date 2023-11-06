@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hatsnake.billina.repository.UserMapper">
+	<!-- findByEmail -->
+	<select id="findByEmail" resultType="com.hatsnake.billina.domain.Users">
+		SELECT * FROM USERS WHERE EMAIL = #{email}
+	</select>
+	
+	<!-- insertUser -->
+	<insert id="insertUser">
+		INSERT INTO USERS (EMAIL, NAME, PICTURE, PROVIDER) VALUES (#{email}, #{name}, #{picture}, #{provider})
+	</insert>
+	
+	<!-- updateUser -->
+	<update id="updateUser">
+		UPDATE USERS SET
+			NAME    = #{name}
+		  , PICTURE = #{picture}
+		WHERE EMAIL = #{email}
+	</update>
+</mapper>
