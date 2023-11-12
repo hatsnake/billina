@@ -6,7 +6,8 @@ import com.hatsnake.billina.domain.Users;
 
 @Mapper
 public interface UserMapper {
-	public Users findByEmail(String email) throws Exception;
+	public Users findUserByEmail(String email) throws Exception;
+	public Users findUserById(Long id) throws Exception;
 	public int insertUser(Users user) throws Exception;
 	public int updateUser(Users user) throws Exception;
 }

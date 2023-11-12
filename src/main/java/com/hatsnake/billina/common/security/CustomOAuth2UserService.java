@@ -55,7 +55,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	private Users saveOrUpdate(OAuthAttributes attributes) {
 		Users user = null;
 		try {
-			user = userMapper.findByEmail(attributes.getEmail());
+			user = userMapper.findUserByEmail(attributes.getEmail());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -69,14 +69,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		if(user == null) {
 			try {
 				userMapper.insertUser(newUser);
-				user = userMapper.findByEmail(newUser.getEmail());
+				user = userMapper.findUserByEmail(newUser.getEmail());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else {
 			try {
 				userMapper.updateUser(newUser);
-				user = userMapper.findByEmail(newUser.getEmail());
+				user = userMapper.findUserByEmail(newUser.getEmail());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

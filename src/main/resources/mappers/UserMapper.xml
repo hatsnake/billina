@@ -3,14 +3,43 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.hatsnake.billina.repository.UserMapper">
-	<!-- findByEmail -->
-	<select id="findByEmail" resultType="com.hatsnake.billina.domain.Users">
-		SELECT * FROM USERS WHERE EMAIL = #{email}
+	<!-- findUserByEmail -->
+	<select id="findUserByEmail" resultType="com.hatsnake.billina.domain.Users">
+		SELECT 
+			  ID
+			, EMAIL
+			, NAME
+			, ROLE
+			, PICTURE
+			, PROVIDER
+			, INTRODUCTION
+			, CREATED_USER
+			, CREATED_DATE
+			, UPDATED_USER
+			, UPDATED_DATE
+		FROM USERS WHERE EMAIL = #{email}
+	</select>
+	
+	<!-- findUserById -->
+	<select id="findUserById" resultType="com.hatsnake.billina.domain.Users">
+		SELECT 
+			  ID
+			, EMAIL
+			, NAME
+			, ROLE
+			, PICTURE
+			, PROVIDER
+			, INTRODUCTION
+			, CREATED_USER
+			, CREATED_DATE
+			, UPDATED_USER
+			, UPDATED_DATE
+		FROM USERS WHERE ID = #{id}
 	</select>
 	
 	<!-- insertUser -->
 	<insert id="insertUser">
-		INSERT INTO USERS (EMAIL, NAME, PICTURE, PROVIDER) VALUES (#{email}, #{name}, #{picture}, #{provider})
+		INSERT INTO USERS (EMAIL, NAME, PICTURE, PROVIDER, CREATED_USER) VALUES (#{email}, #{name}, #{picture}, #{provider}, #{email})
 	</insert>
 	
 	<!-- updateUser -->

@@ -21,10 +21,6 @@ public class MainController {
 	public String main(Model model) {		
 		log.info("Main Page Start.");
 		
-		SessionUser user = (SessionUser) httpSession.getAttribute("user");
-				
-		model.addAttribute("user", user);
-		
 		return "main";
 	}
 }

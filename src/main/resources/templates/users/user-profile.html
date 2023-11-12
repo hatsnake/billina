@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="layout/default_layout">
+<th:block layout:fragment="content">
+
+<!-- OPEN HEAD -->
+<head>
+<style>
+
+</style>
+
+<script th:inline="javascript">
+$(document).ready(function() {
+	getUserProfileInfo();
+});
+
+function getUserProfileInfo() {
+	var userId = [[${session.user.id}]];
+
+	$.ajax({
+		type: "get",
+		url: "/users/" + userId,
+		success:function(res) {
+			setTimeout(function() {
+				console.log(JSON.stringify(res))
+				$("#main-box").removeClass("animate-pulse");
+				$("#picture-box").html(`<img src='${res.picture}' alt='Avatar' class='w-full h-full object-cover'>`);
+				$("#greeting-box").html(`<div>${res.name} 님 환영합니다.</div>`);
+				$("#email-box").html(`<div>${res.email}</div>`);
+				$("#name-box").html(`<div>${res.name}</div>`);
+				$("#provider-box").html(`<div>${res.provider}</div>`);
+				$("#role-box").html(`<div>${res.role}</div>`);
+				$("#created-date-box").html(`<div>${formatDateTime(res.createdDate)}</div>`);
+				$("#updated-date-box").html(`<div>${formatDateTime(res.updatedDate)}</div>`);
+				$("#introduction-box").addClass("flex items-center");
+				$("#introduction-box").html(`<span class='mr-2'>${res.introduction}</span>`);
+				$("#introduction-box").append(`
+					<span>
+				      <button type='button' class='inline-flex rounded-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50'>
+				        <svg class='-ml-0.5 mr-1.5 h-5 w-5 text-gray-400' viewBox='0 0 20 20' fill='currentColor' aria-hidden='true'>
+				          <path d='M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z' />
+				        </svg>
+				        변경
+				      </button>
+				    </span>
+				 `);
+			}, 1500);
+		},
+		error:function(httpRequest, textStatus, errorThrown) {
+			alert("데이터 실패");
+		}
+	})
+}
+
+function formatDateTime(inputDate) {
+	if(inputDate == null) {
+		return "없음";
+	}
+	
+    const date = new Date(inputDate);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    return formattedDateTime;
+}
+</script>
+</head>
+<!-- CLOSE HEAD -->
+
+<!-- OPEN MAIN -->
+<section class="w-full sm:w-7/12 md:w-6/12 lg:w-5/12 xl:w-4/12 mx-5 my-5">
+	<div id="main-box" class="py-5 px-10 shadow-2xl bg-gray-100 rounded-lg animate-pulse">
+	  <div class="px-4 sm:px-0 text-center">
+		<div class="flex items-center justify-center">
+		  <div id="picture-box" class="w-24 h-24 bg-gray-300 rounded-full overflow-hidden">
+		    <!-- 
+		    <img alt="Avatar" class="w-full h-full object-cover">
+		     -->
+		    <div class="rounded-full bg-slate-700 h-full w-full"></div>
+		  </div>
+		</div>	  
+	    <h3 id="greeting-box" class="text-base font-semibold leading-7 text-gray-900 m-2"></h3>
+	    <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
+	    	<span>프로필 정보를 확인하고 수정 가능합니다.</span>
+	    </p>
+	  </div>
+	  <div class="mt-6 border-t border-gray-100">
+	    <div class="divide-y divide-gray-300">
+	    
+	      <!-- 이메일 주소 -->
+	      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+	        <div class="text-sm font-medium leading-6 text-gray-900">
+	        	<div>이메일 주소</div>
+	        </div>
+	        <div id="email-box" class="text-sm leading-6 text-gray-700 sm:col-span-2">
+	        	<div class="mt-2 h-2 bg-slate-700 rounded"></div>
+	        </div>
+	      </div>
+	      
+	      <!-- 이름 -->
+	      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+	        <div class="text-sm font-medium leading-6 text-gray-900">
+	        	<div>이름</div>
+	        </div>
+	        <div id="name-box" class="text-sm leading-6 text-gray-700 sm:col-span-2">
+	        	<div class="mt-2 h-2 bg-slate-700 rounded"></div>
+	        </div>
+	      </div>
+	      
+	      <!-- 소셜 로그인 -->
+	      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+	        <div class="text-sm font-medium leading-6 text-gray-900">
+	        	<div>소셜 로그인</div>
+	        </div>
+	        <div id="provider-box" class="text-sm leading-6 text-gray-700 sm:col-span-2">
+	        	<div class="mt-2 h-2 bg-slate-700 rounded"></div>	        
+	        </div>
+	      </div>
+	      
+	      <!-- 역할 -->
+	      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+	        <div class="text-sm font-medium leading-6 text-gray-900">
+	        	<div>역할</div>
+	        </div>
+	        <div id="role-box" class="text-sm leading-6 text-gray-700 sm:col-span-2">
+	        	<div class="mt-2 h-2 bg-slate-700 rounded"></div>	        	        
+	        </div>
+	      </div>
+	      
+	      <!-- 생성일 -->
+	      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+	        <div class="text-sm font-medium leading-6 text-gray-900">
+	        	<div>생성일</div>
+	        </div>
+	        <div id="created-date-box" class="text-sm leading-6 text-gray-700 sm:col-span-2">
+	        	<div class="mt-2 h-2 bg-slate-700 rounded"></div>
+	        </div>
+	      </div>
+	      
+	      <!-- 수정일 -->
+	      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+	        <div class="text-sm font-medium leading-6 text-gray-900">
+	        	<div>수정일</div>
+	        </div>
+	        <div id="updated-date-box" class="text-sm leading-6 text-gray-700 sm:col-span-2">
+	        	<div class="mt-2 h-2 bg-slate-700 rounded"></div>	        	        
+	        </div>
+	      </div>
+	      
+	      <!-- 설명 -->
+	      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+	        <div class="text-sm font-medium leading-7 text-gray-900">
+		        <div>자기소개</div> 
+	        </div>
+	        <div id="introduction-box" class="text-sm text-gray-700 sm:col-span-2">
+	        	<div class="mt-3 h-2 bg-slate-700 rounded"></div>
+	        </div>
+	      </div>
+	      
+	    </div>
+	  </div>
+	</div>
+</section>
+<!-- CLOSE MAIN -->
+
+</th:block>
+</html>
