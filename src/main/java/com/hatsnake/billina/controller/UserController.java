@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.hatsnake.billina.domain.SessionUser;
@@ -51,7 +53,7 @@ public class UserController {
 	@GetMapping("/users/{id}")
 	@ResponseBody
 	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<Users> getUserProfileInfo(@PathVariable Long id) {
+	public ResponseEntity<Users> getUserProfile(@PathVariable Long id) {
 		log.info("getUserProfileInfo() Start.");
 		
 		SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
@@ -77,5 +79,43 @@ public class UserController {
 		}
 		
 		return new ResponseEntity<>(user, HttpStatus.OK);
+	}
+	
+	// 유저 자기소개 정보 수정
+	@PutMapping("/users/{id}")
+	@ResponseBody
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<Users> updateUserIntro(@PathVariable Long id, @RequestBody Users user) {
+		log.info("updateUserIntro() Start.");
+		
+		log.info("id : " + id);
+		log.info("user : " + user.toString());
+		
+		SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
+
+		Users existUser = null;
+		try {
+			existUser = userMapper.findUserById(id);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+		
+		if(existUser == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		if(sessionUser.getId() != existUser.getId()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		existUser.setIntroduction(user.getIntroduction());
+		
+		try {
+			userMapper.updateUserIntro(existUser);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+		
+		return new ResponseEntity<>(existUser, HttpStatus.OK);
 	}
 }

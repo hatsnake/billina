@@ -49,4 +49,11 @@
 		  , PICTURE = #{picture}
 		WHERE EMAIL = #{email}
 	</update>
+	
+	<!-- updateUserIntro -->
+	<update id="updateUserIntro">
+		UPDATE USERS SET
+			INTRODUCTION = #{introduction}
+		WHERE ID = #{id}
+	</update>
 </mapper>

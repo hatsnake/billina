@@ -11,19 +11,97 @@
 </style>
 
 <script th:inline="javascript">
+var userId = [[${session.user.id}]];
+
 $(document).ready(function() {
-	getUserProfileInfo();
+	fntGetUserProfile();
+	
+	$("#intro-modal-overlay").on("click", function(e) {
+		if(e.target.id == "intro-modal-overlay") {
+			$("#intro-modal-pannel").addClass("hidden");
+		}
+ 	});
+	
+	$("#intro-cancel-btn").on("click", function() {
+		$("#intro-modal-pannel").addClass("hidden");
+	});
+	
+	$("#intro-modify-btn").on("click", function() {
+		Swal.fire({
+		  title: "자기소개 수정",
+		  text: "정말 수정하시겠습니까?",
+		  icon: "question",
+		  confirmButtonText: "확인",
+		  confirmButtonColor: "#F2CB61",
+		  cancelButtonText: "취소",
+		  cancelButtonColor: "#EDEDED",
+		  showCancelButton: true,
+		  customClass: {
+			    container: 'custom-modal-container',
+	      },
+		}).then((result) => {
+		  var introModifyParams = {
+		      introduction : $("#intro-modal-textarea").val()
+		  }
+		
+		  if (result.isConfirmed) {
+			$.ajax({
+				type: "PUT",
+				url: `/users/${userId}`,
+				contentType: 'application/json',
+	            data: JSON.stringify(introModifyParams), 
+				success: function(res) {
+					//console.log(res);
+					$("#intro-modal-pannel").addClass("hidden");
+					Swal.fire({
+					  icon: "success",
+					  title: "자기소개 수정",
+					  text: "자기소개 수정을 성공하셨습니다."
+					});
+					fntGetUserProfile();
+				},
+				error: function(request, status, error) {
+					alert("자기소개 수정 실패 \n(상태 : " + request.status + ", 원인메시지 : " + request.responseText);
+				}
+			})
+		  }
+		});
+	});
 });
 
-function getUserProfileInfo() {
-	var userId = [[${session.user.id}]];
+$(document).on("click", "#intro-btn", function() {
+	var introVal = $("#intro-text").text();
+	
+	if(introVal == "자기소개가 없습니다.") {
+		introVal = "";
+	}
+	
+	if(userId == "" || userId == null) {
+		alert("세션 아이디가 없어서 조회가 불가능합니다.");
+		return false;
+	}
+	
+	$("#intro-modal-pannel").removeClass("hidden");
+	
+	if($("#intro-text").text() == "자기소개가 없습니다.") {
+		$("#intro-modal-textarea").text("");
+	} else {
+		$("#intro-modal-textarea").html($("#intro-text").html());
+	}
+});
+
+function fntGetUserProfile() {
+	if(userId == "" || userId == null) {
+		alert("세션 아이디가 없어서 조회가 불가능합니다.");
+		return false;
+	}
 
 	$.ajax({
-		type: "get",
-		url: "/users/" + userId,
+		type: "GET",
+		url: `/users/${userId}`,
 		success:function(res) {
 			setTimeout(function() {
-				console.log(JSON.stringify(res))
+				//console.log(JSON.stringify(res))
 				$("#main-box").removeClass("animate-pulse");
 				$("#picture-box").html(`<img src='${res.picture}' alt='Avatar' class='w-full h-full object-cover'>`);
 				$("#greeting-box").html(`<div>${res.name} 님 환영합니다.</div>`);
@@ -33,24 +111,21 @@ function getUserProfileInfo() {
 				$("#role-box").html(`<div>${res.role}</div>`);
 				$("#created-date-box").html(`<div>${formatDateTime(res.createdDate)}</div>`);
 				$("#updated-date-box").html(`<div>${formatDateTime(res.updatedDate)}</div>`);
-				$("#introduction-box").addClass("flex items-center");
-				$("#introduction-box").html(`<span class='mr-2'>${res.introduction}</span>`);
-				$("#introduction-box").append(`
-					<span>
-				      <button type='button' class='inline-flex rounded-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50'>
-				        <svg class='-ml-0.5 mr-1.5 h-5 w-5 text-gray-400' viewBox='0 0 20 20' fill='currentColor' aria-hidden='true'>
-				          <path d='M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z' />
-				        </svg>
-				        변경
-				      </button>
-				    </span>
+				$("#intro-box").html(`<div id='intro-text' class='mr-2 whitespace-pre-wrap'>${res.introduction}</div>`);
+				$("#intro-box").append(`
+			      <div id='intro-btn' class='inline-flex rounded-md bg-white px-2 py-1 mt-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-slate-200'>
+			        <svg class='-ml-0.5 mr-1.5 h-5 w-5 text-gray-400' viewBox='0 0 20 20' fill='currentColor' aria-hidden='true'>
+			          <path d='M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z' />
+			        </svg>
+			        변경
+			      </div>
 				 `);
-			}, 1500);
+			}, 500);
 		},
 		error:function(httpRequest, textStatus, errorThrown) {
 			alert("데이터 실패");
 		}
-	})
+	});
 }
 
 function formatDateTime(inputDate) {
@@ -160,7 +235,7 @@ function formatDateTime(inputDate) {
 	        <div class="text-sm font-medium leading-7 text-gray-900">
 		        <div>자기소개</div> 
 	        </div>
-	        <div id="introduction-box" class="text-sm text-gray-700 sm:col-span-2">
+	        <div id="intro-box" class="text-sm text-gray-700 sm:col-span-2">
 	        	<div class="mt-3 h-2 bg-slate-700 rounded"></div>
 	        </div>
 	      </div>
@@ -170,6 +245,31 @@ function formatDateTime(inputDate) {
 	</div>
 </section>
 <!-- CLOSE MAIN -->
+
+<!-- OPEN INTRODUCTION MODIFY MODAL -->
+<div id="intro-modal-pannel" class="hidden relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+  <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+    <div id="intro-modal-overlay" class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+      <div id="intro-modal" class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+        <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+           <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+             <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">자기소개 수정</h3>
+             <div class="mt-3 w-full">
+             	<textarea id="intro-modal-textarea" class="w-full border p-1" placeholder="자기소개 입력.." rows="5"></textarea>
+             </div>
+           </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+          <span id="intro-cancel-btn" class="mx-1 mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-200 sm:mt-0 sm:w-auto">취소</span>
+          <span id="intro-modify-btn" class="mx-1 inline-flex w-full justify-center rounded-md bg-orange-400 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 sm:ml-3 sm:w-auto">수정</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- OPEN INTRODUCTION MODIFY MODAL -->
 
 </th:block>
 </html>

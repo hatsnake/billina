@@ -10,4 +10,5 @@ public interface UserMapper {
 	public Users findUserById(Long id) throws Exception;
 	public int insertUser(Users user) throws Exception;
 	public int updateUser(Users user) throws Exception;
+	public int updateUserIntro(Users user) throws Exception;
 }
